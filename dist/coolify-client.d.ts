@@ -1,4 +1,4 @@
-import type { CoolifyConfig, Application, Database, Server, Project, Deployment, Service, Team, CoolifyApiResponse, ListResponse } from './types';
+import type { CoolifyConfig, Application, Database, Server, Project, Deployment, Service, Team, CoolifyApiResponse, ListResponse, CreatePrivateGithubAppApplicationRequest, CreatePrivateGithubAppApplicationResponse } from './types';
 export declare class CoolifyClient {
     private client;
     private config;
@@ -29,6 +29,7 @@ export declare class CoolifyClient {
     listDeployments(applicationId: string): Promise<ListResponse<Deployment>>;
     getDeployment(id: string): Promise<CoolifyApiResponse<Deployment>>;
     deployApplication(applicationId: string, tag?: string): Promise<CoolifyApiResponse<Deployment>>;
+    createPrivateGithubAppApplication(data: CreatePrivateGithubAppApplicationRequest): Promise<CoolifyApiResponse<CreatePrivateGithubAppApplicationResponse>>;
     listServices(): Promise<ListResponse<Service>>;
     getService(id: string): Promise<CoolifyApiResponse<Service>>;
     createService(data: Partial<Service>): Promise<CoolifyApiResponse<Service>>;

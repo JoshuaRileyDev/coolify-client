@@ -21,6 +21,53 @@ export interface Application {
   updated_at: string;
 }
 
+export interface CreatePrivateGithubAppApplicationRequest {
+  project_uuid: string;
+  server_uuid: string;
+  github_app_uuid: string;
+  git_repository: string;
+  git_branch: string;
+  name: string;
+  domains?: string;
+  ports_exposes?: string;
+  ports_mappings?: string;
+  base_directory?: string;
+  build_pack?: string;
+  static_image?: string;
+  install_command?: string;
+  build_command?: string;
+  start_command?: string;
+  custom_labels?: string;
+  custom_docker_run_options?: string;
+  redirect?: string;
+  instant_deploy?: boolean;
+  dockerfile?: string;
+  docker_registry_image_name?: string;
+  docker_registry_image_tag?: string;
+  docker_compose_location?: string;
+  docker_compose_raw?: string;
+  docker_compose_custom_start_command?: string;
+  docker_compose_custom_build_command?: string;
+  docker_compose_domains?: string;
+  watch_paths?: string;
+  nixpacks_plan?: string;
+  nixpacks_build_cmd?: string;
+  nixpacks_start_cmd?: string;
+  custom_nginx_configuration?: string;
+  custom_healthcheck_found?: boolean;
+  manual_webhook_secret_github?: string;
+  manual_webhook_secret_gitlab?: string;
+  manual_webhook_secret_bitbucket?: string;
+  manual_webhook_secret_gitea?: string;
+  environment_name?: string;
+  is_container_label_readonly_enabled?: boolean;
+  is_container_label_escape_enabled?: boolean;
+}
+
+export interface CreatePrivateGithubAppApplicationResponse {
+  uuid: string;
+}
+
 export interface Database {
   id: string;
   name: string;

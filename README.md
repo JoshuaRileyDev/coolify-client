@@ -59,6 +59,86 @@ The `CoolifyClient` accepts a configuration object with the following properties
 3. Create a new API token with the required permissions
 4. Copy the token for use in your application
 
+## Understanding Coolify Resources and Relationships
+
+### Resource Hierarchy
+
+Coolify organizes resources in a hierarchical structure:
+
+```
+Teams
+└── Projects
+    └── Servers
+        └── Applications/Databases/Services
+```
+
+### Finding Required IDs and UUIDs
+
+Many API endpoints require specific IDs or UUIDs. Here's how to find them:
+
+#### 1. **Project UUID** (`project_uuid`)
+```typescript
+// List all projects to find project UUIDs
+const projects = await coolify.listProjects();
+projects.data.forEach(project => {
+  console.log(`Project: ${project.name}, UUID: ${project.id}`);
+});
+```
+
+#### 2. **Server UUID** (`server_uuid`)
+```typescript
+// List all servers to find server UUIDs
+const servers = await coolify.listServers();
+servers.data.forEach(server => {
+  console.log(`Server: ${server.name}, UUID: ${server.id}`);
+});
+```
+
+#### 3. **GitHub App UUID** (`github_app_uuid`)
+To find GitHub App UUIDs:
+1. In Coolify UI, go to **Settings** → **GitHub Apps**
+2. The UUID is shown for each configured GitHub App
+3. Or use the API to list GitHub Apps (if endpoint available)
+
+#### 4. **Application ID**
+```typescript
+// List applications to find their IDs
+const apps = await coolify.listApplications();
+apps.data.forEach(app => {
+  console.log(`App: ${app.name}, ID: ${app.id}`);
+});
+```
+
+### Resource Relationships Example
+
+```typescript
+// Example: Creating a complete application setup
+
+// 1. First, create or identify a project
+const project = await coolify.createProject({
+  name: 'my-production-project',
+  description: 'Production environment'
+});
+const projectUuid = project.data?.id;
+
+// 2. Create or identify a server
+const server = await coolify.createServer({
+  name: 'production-server',
+  ip: '192.168.1.100',
+  user: 'root'
+});
+const serverUuid = server.data?.id;
+
+// 3. Now you can create an application using these relationships
+const app = await coolify.createApplication({
+  name: 'my-app',
+  project_uuid: projectUuid,
+  server_uuid: serverUuid,
+  git_repository: 'https://github.com/user/repo',
+  git_branch: 'main'
+});
+```
+
 ## API Reference
 
 ### Applications
@@ -93,6 +173,55 @@ await coolify.restartApplication('app-id');
 // Deploy an application
 const deployment = await coolify.deployApplication('app-id', 'v1.0.0');
 ```
+
+#### Create Private GitHub App Application
+
+This endpoint allows you to create an application from a private GitHub repository using a configured GitHub App.
+
+```typescript
+// Create an application from a private GitHub repository
+const privateApp = await coolify.createPrivateGithubAppApplication({
+  // Required fields
+  project_uuid: 'your-project-uuid',      // Get from listProjects()
+  server_uuid: 'your-server-uuid',        // Get from listServers()
+  github_app_uuid: 'your-github-app-uuid',// From Coolify UI > Settings > GitHub Apps
+  git_repository: 'https://github.com/org/private-repo',
+  git_branch: 'main',
+  name: 'my-private-app',
+  
+  // Optional fields
+  domains: 'app.example.com,www.app.example.com',
+  ports_exposes: '3000',
+  ports_mappings: '3000:80',
+  base_directory: '/app',
+  build_pack: 'nixpacks', // or 'dockerfile', 'static', etc.
+  install_command: 'npm install',
+  build_command: 'npm run build',
+  start_command: 'npm start',
+  instant_deploy: true,
+  
+  // Docker-specific options
+  dockerfile: './Dockerfile',
+  docker_registry_image_name: 'myapp',
+  docker_registry_image_tag: 'latest',
+  
+  // Environment configuration
+  environment_name: 'production',
+  
+  // Advanced options
+  custom_labels: 'traefik.enable=true',
+  custom_docker_run_options: '--memory=2g',
+  custom_nginx_configuration: 'client_max_body_size 100M;',
+  watch_paths: './src,./public',
+});
+
+console.log('Private app created with UUID:', privateApp.data?.uuid);
+```
+
+**Important Notes:**
+- You must have a GitHub App configured in Coolify before using this endpoint
+- The repository must be accessible by the configured GitHub App
+- The `github_app_uuid` can be found in Coolify UI under Settings → GitHub Apps
 
 ### Databases
 
@@ -243,7 +372,9 @@ import type {
   Application, 
   Database, 
   Server, 
-  CoolifyConfig 
+  CoolifyConfig,
+  CreatePrivateGithubAppApplicationRequest,
+  CreatePrivateGithubAppApplicationResponse
 } from '@joshuarileydev/coolify-client';
 
 const config: CoolifyConfig = {
@@ -275,6 +406,14 @@ If you encounter any issues or have questions:
 3. Join the [Coolify Discord](https://discord.gg/coolify) community
 
 ## Changelog
+
+### 1.1.0
+- Added `createPrivateGithubAppApplication` endpoint for creating applications from private GitHub repositories
+- Improved documentation with resource relationship explanations
+- Added examples for finding required UUIDs and IDs
+
+### 1.0.1
+- Bug fixes and improvements
 
 ### 1.0.0
 - Initial release

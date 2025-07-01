@@ -10,6 +10,8 @@ import type {
   Team,
   CoolifyApiResponse,
   ListResponse,
+  CreatePrivateGithubAppApplicationRequest,
+  CreatePrivateGithubAppApplicationResponse,
 } from './types';
 
 export class CoolifyClient {
@@ -148,6 +150,13 @@ export class CoolifyClient {
   async deployApplication(applicationId: string, tag?: string): Promise<CoolifyApiResponse<Deployment>> {
     const data = tag ? { tag } : {};
     const response = await this.client.post(`/applications/${applicationId}/deploy`, data);
+    return this.handleResponse(response);
+  }
+
+  async createPrivateGithubAppApplication(
+    data: CreatePrivateGithubAppApplicationRequest
+  ): Promise<CoolifyApiResponse<CreatePrivateGithubAppApplicationResponse>> {
+    const response = await this.client.post('/applications/private-github-app', data);
     return this.handleResponse(response);
   }
 
