@@ -112,6 +112,10 @@ class CoolifyClient {
         const response = await this.client.post(`/applications/${applicationId}/deploy`, data);
         return this.handleResponse(response);
     }
+    async createPrivateGithubAppApplication(data) {
+        const response = await this.client.post('/applications/private-github-app', data);
+        return this.handleResponse(response);
+    }
     async listServices() {
         const response = await this.client.get('/services');
         return this.handleResponse(response);
